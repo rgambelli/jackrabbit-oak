@@ -493,6 +493,107 @@ public enum RDBDocumentStoreDB {
             return result;
         }
     },
+    
+    MARIADB("MariaDB", RDBCommonVendorSpecificCode.MYSQL) {
+        @Override
+        public String checkVersion(DatabaseMetaData md) throws SQLException {
+            return RDBJDBCTools.versionCheck(md, 10, 5, description);
+        }
+
+        @Override
+        public String getCurrentTimeStampInSecondsSyntax() {
+            return "select unix_timestamp()";
+        }
+
+        @Override
+        public String getTableCreationStatement(String tableName, int schema) {
+            // see https://issues.apache.org/jira/browse/OAK-1913
+            return ("create table " + tableName
+                    + " (ID varbinary(512) not null primary key, MODIFIED bigint, HASBINARY smallint, DELETEDONCE smallint, MODCOUNT bigint, CMODCOUNT bigint, DSIZE bigint, "
+                    + (schema >= 1 ? "VERSION smallint, " : "")
+                    + (schema >= 2 ? "SDTYPE smallint, SDMAXREVTIME bigint, " : "")
+                    + "DATA varchar(16000), BDATA longblob)");
+        }
+
+        @Override
+        public FETCHFIRSTSYNTAX getFetchFirstSyntax() {
+            return FETCHFIRSTSYNTAX.LIMIT;
+        }
+
+        @Override
+        public PreparedStatementComponent getConcatQuery(final String appendData, final int dataOctetLimit) {
+            return new PreparedStatementComponent() {
+
+                @Override
+                public String getStatementComponent() {
+                    return "CONCAT(DATA, ?)";
+                }
+
+                @Override
+                public int setParameters(PreparedStatement stmt, int startIndex) throws SQLException {
+                    stmt.setString(startIndex++, appendData);
+                    return startIndex;
+                }
+            };
+        }
+
+        @Override
+        public Map<String, String> getAdditionalStatistics(RDBConnectionHandler ch, String catalog, String tableName) {
+
+            Map<String, String> result = new HashMap<String, String>();
+
+            Connection con = null;
+
+            // table data
+            String tableStats = SystemPropertySupplier
+                    .create(SYSPROP_PREFIX + ".MYSQL.TABLE_STATS",
+                            "engine version row_format rows avg_row_length data_length index_length data_free collation")
+                    .loggingTo(LOG).get();
+
+            try {
+                con = ch.getROConnection();
+                try (PreparedStatement stmt = con.prepareStatement("show table status from " + catalog + " where name=?")) {
+                    stmt.setString(1, tableName.toUpperCase(Locale.ENGLISH));
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        while (rs.next()) {
+                            String data = extractFields(rs, tableStats);
+                            result.put("_data", data.toString());
+                        }
+                    }
+                }
+                con.commit();
+            } catch (SQLException ex) {
+                LOG.debug("while getting diagnostics", ex);
+            } finally {
+                ch.closeConnection(con);
+            }
+
+            // index data
+            String indexStats = SystemPropertySupplier
+                    .create(SYSPROP_PREFIX + ".MYSQL.INDEX_STATS", "column_name cardinality index_type sub_part").loggingTo(LOG)
+                    .get();
+
+            try {
+                con = ch.getROConnection();
+                try (PreparedStatement stmt = con.prepareStatement("show index from " + tableName + " in " + catalog)) {
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        while (rs.next()) {
+                            String index = rs.getString("key_name");
+                            String data = extractFields(rs, indexStats);
+                            result.put("index." + index + "._data", data);
+                        }
+                    }
+                }
+                con.commit();
+            } catch (SQLException ex) {
+                LOG.debug("while getting diagnostics", ex);
+            } finally {
+                ch.closeConnection(con);
+            }
+
+            return result;
+        }
+    },
 
     MSSQL("Microsoft SQL Server", RDBCommonVendorSpecificCode.MSSQL) {
         @Override

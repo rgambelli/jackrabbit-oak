@@ -1249,6 +1249,16 @@
       </dependencies>
     </profile>
     <profile>
+      <id>rdb-mariadb</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.mariadb.jdbc</groupId>
+          <artifactId>mariadb-java-client</artifactId>
+          <version>3.4.1</version>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
       <id>coverage</id>
       <properties>
         <skip.coverage>false</skip.coverage>
