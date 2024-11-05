@@ -43,7 +43,7 @@ class MongoTestClient implements MongoClient {
     private AtomicReference<String> beforeQueryException = new AtomicReference<>();
     private AtomicReference<String> beforeUpdateException = new AtomicReference<>();
     private AtomicReference<String> afterUpdateException = new AtomicReference<>();
-
+    
     private MongoClient delegate;
 
     MongoTestClient(String uri) {
@@ -203,6 +203,7 @@ class MongoTestClient implements MongoClient {
     @Override
     public void close() {
         delegate.close();
+        
     }
 
     @Override

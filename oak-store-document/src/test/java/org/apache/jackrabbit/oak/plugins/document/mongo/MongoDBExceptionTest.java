@@ -1,18 +1,13 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file distributed with this work
+ * for additional information regarding copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.jackrabbit.oak.plugins.document.mongo;
 
@@ -81,9 +76,11 @@ public class MongoDBExceptionTest {
             store.findAndUpdate(Collection.NODES, op);
             fail("DocumentStoreException expected");
         } catch (DocumentStoreException e) {
-            assertTrue(e.getMessage().contains(exceptionMsg));
+            assertTrue(e.getMessage()
+                    .contains(exceptionMsg));
             assertTrue("Exception message does not contain id: '" + e.getMessage() + "'",
-                    e.getMessage().contains(id));
+                    e.getMessage()
+                            .contains(id));
         }
 
         exceptionMsg = "createOrUpdate failed";
@@ -92,9 +89,11 @@ public class MongoDBExceptionTest {
             store.createOrUpdate(Collection.NODES, op);
             fail("DocumentStoreException expected");
         } catch (DocumentStoreException e) {
-            assertTrue(e.getMessage().contains(exceptionMsg));
+            assertTrue(e.getMessage()
+                    .contains(exceptionMsg));
             assertTrue("Exception message does not contain id: '" + e.getMessage() + "'",
-                    e.getMessage().contains(id));
+                    e.getMessage()
+                            .contains(id));
         }
 
         exceptionMsg = "createOrUpdate (multiple) failed";
@@ -103,9 +102,11 @@ public class MongoDBExceptionTest {
             store.createOrUpdate(Collection.NODES, singletonList(op));
             fail("DocumentStoreException expected");
         } catch (DocumentStoreException e) {
-            assertTrue(e.getMessage().contains(exceptionMsg));
+            assertTrue(e.getMessage()
+                    .contains(exceptionMsg));
             assertTrue("Exception message does not contain id: '" + e.getMessage() + "'",
-                    e.getMessage().contains(id));
+                    e.getMessage()
+                            .contains(id));
         }
 
         exceptionMsg = "find failed";
@@ -116,7 +117,8 @@ public class MongoDBExceptionTest {
         } catch (DocumentStoreException e) {
             assertThat(e.getMessage(), containsString(exceptionMsg));
             assertTrue("Exception message does not contain id: '" + e.getMessage() + "'",
-                    e.getMessage().contains(id));
+                    e.getMessage()
+                            .contains(id));
         }
 
         Path foo = Path.fromString("/foo");
@@ -130,15 +132,18 @@ public class MongoDBExceptionTest {
         } catch (DocumentStoreException e) {
             assertThat(e.getMessage(), containsString(exceptionMsg));
             assertTrue("Exception message does not contain id: '" + e.getMessage() + "'",
-                    e.getMessage().contains(fromKey));
+                    e.getMessage()
+                            .contains(fromKey));
             assertTrue("Exception message does not contain id: '" + e.getMessage() + "'",
-                    e.getMessage().contains(toKey));
+                    e.getMessage()
+                            .contains(toKey));
         }
     }
 
     @Test
     public void createOrUpdate16MBDoc() {
-        LogCustomizer customizer = LogCustomizer.forLogger(MongoDocumentStore.class.getName()).create();
+        LogCustomizer customizer = LogCustomizer.forLogger(MongoDocumentStore.class.getName())
+                .create();
         customizer.starting();
         String id = "/foo";
         UpdateOp updateOp = new UpdateOp(id, true);
@@ -149,7 +154,8 @@ public class MongoDBExceptionTest {
             fail("DocumentStoreException expected");
         } catch (DocumentStoreException e) {
             assertThat(e.getMessage(), containsString(exceptionMsg));
-            String log = customizer.getLogs().toString();
+            String log = customizer.getLogs()
+                    .toString();
             assertTrue("Message doesn't contain the id", log.contains(id));
         }
         customizer.finished();
@@ -177,7 +183,8 @@ public class MongoDBExceptionTest {
     public void multiCreateOrUpdate16MBDoc() {
 
         List<UpdateOp> updateOps = new ArrayList<>();
-        LogCustomizer customizer = LogCustomizer.forLogger(MongoDocumentStore.class.getName()).create();
+        LogCustomizer customizer = LogCustomizer.forLogger(MongoDocumentStore.class.getName())
+                .create();
         customizer.starting();
         String id1 = "/test";
         String id2 = "/foo";
@@ -201,7 +208,8 @@ public class MongoDBExceptionTest {
             fail("DocumentStoreException expected");
         } catch (DocumentStoreException e) {
             assertThat(e.getMessage(), containsString(exceptionMsg));
-            String log = customizer.getLogs().toString();
+            String log = customizer.getLogs()
+                    .toString();
             assertTrue("Message doesn't contain the id", log.contains(id1));
         }
         customizer.finished();
@@ -211,7 +219,8 @@ public class MongoDBExceptionTest {
     public void create16MBDoc() {
 
         List<UpdateOp> updateOps = new ArrayList<>();
-        LogCustomizer customizer = LogCustomizer.forLogger(MongoDocumentStore.class.getName()).create();
+        LogCustomizer customizer = LogCustomizer.forLogger(MongoDocumentStore.class.getName())
+                .create();
         customizer.starting();
         String id1 = "/test";
         String id2 = "/foo";
@@ -225,7 +234,8 @@ public class MongoDBExceptionTest {
         updateOps.add(op1);
         updateOps.add(op2);
         assertFalse(store.create(Collection.NODES, updateOps));
-        String log = customizer.getLogs().toString();
+        String log = customizer.getLogs()
+                .toString();
         assertTrue("Message doesn't contain the id", log.contains(id2));
     }
 
