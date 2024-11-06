@@ -203,6 +203,7 @@ public abstract class DocumentStoreIndexerBase implements Closeable {
                         .withNodeStateEntryTraverserFactory(new MongoNodeStateEntryTraverserFactory(rootDocumentState.getRootRevision(),
                                 nodeStore, getMongoDocumentStore(), traversalLog))
                         .withCheckpoint(indexerSupport.getCheckpoint())
+                        .withMinModified(indexerSupport.getMinModified())
                         .withStatisticsProvider(indexHelper.getStatisticsProvider())
                         .withIndexingReporter(reporter)
                         .withAheadOfTimeBlobDownloader(true);

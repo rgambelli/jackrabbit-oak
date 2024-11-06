@@ -19,7 +19,6 @@
 package org.apache.jackrabbit.oak.plugins.document;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.jackrabbit.guava.common.collect.Lists.newArrayList;
 import static org.apache.jackrabbit.oak.commons.IOUtils.closeQuietly;
 import static org.apache.jackrabbit.oak.commons.PropertiesUtil.toLong;
 import static org.apache.jackrabbit.oak.plugins.document.DocumentNodeStoreBuilder.DEFAULT_MEMORY_CACHE_SIZE;
@@ -149,6 +148,9 @@ public class DocumentNodeStoreService {
     public static final String CLASSIC_RGC_EXPR = "0 0 2 * * ?";
     public static final long DEFAULT_RGC_TIME_LIMIT_SECS = 3*60*60; // default is 3 hours
     public static final double DEFAULT_RGC_DELAY_FACTOR = 0;
+    public static final double DEFAULT_FGC_DELAY_FACTOR = 2;
+    public static final int DEFAULT_FGC_BATCH_SIZE = 1000;
+    public static final int DEFAULT_FGC_PROGRESS_SIZE = 10000;
     private static final String DESCRIPTION = "oak.nodestore.description";
     static final long DEFAULT_JOURNAL_GC_INTERVAL_MILLIS = 5*60*1000; // default is 5min
     static final long DEFAULT_JOURNAL_GC_MAX_AGE_MILLIS = 24*60*60*1000; // default is 24hours
@@ -200,6 +202,12 @@ public class DocumentNodeStoreService {
      */
     private static final String FT_NAME_EMBEDDED_VERIFICATION = "FT_EMBEDDED_VERIFICATION_OAK-10633";
 
+    /**
+     * Feature toggle name to enable the prev-no-prop cache.
+     * prev-no-prop refers to previous document not containing a particular property key.
+     */
+    private static final String FT_NAME_PREV_NO_PROP_CACHE = "FT_PREV_NO_PROP_OAK-11184";
+
     // property name constants - values can come from framework properties or OSGi config
     public static final String CUSTOM_BLOB_STORE = "customBlobStore";
     public static final String PROP_REV_RECOVERY_INTERVAL = "lastRevRecoveryJobIntervalInSecs";
@@ -239,6 +247,7 @@ public class DocumentNodeStoreService {
     private Feature cancelInvalidationFeature;
     private Feature docStoreFullGCFeature;
     private Feature docStoreEmbeddedVerificationFeature;
+    private Feature prevNoPropCacheFeature;
     private ComponentContext context;
     private Whiteboard whiteboard;
     private long deactivationTimestamp = 0;
@@ -277,6 +286,7 @@ public class DocumentNodeStoreService {
         cancelInvalidationFeature = Feature.newFeature(FT_NAME_CANCEL_INVALIDATION, whiteboard);
         docStoreFullGCFeature = Feature.newFeature(FT_NAME_FULL_GC, whiteboard);
         docStoreEmbeddedVerificationFeature = Feature.newFeature(FT_NAME_EMBEDDED_VERIFICATION, whiteboard);
+        prevNoPropCacheFeature = Feature.newFeature(FT_NAME_PREV_NO_PROP_CACHE, whiteboard);
 
         registerNodeStoreIfPossible();
     }
@@ -379,7 +389,7 @@ public class DocumentNodeStoreService {
             loggingGCMonitor = new LoggingGCMonitor(vgcLogger);
         }
         mkBuilder.setGCMonitor(new DelegatingGCMonitor(
-                newArrayList(gcMonitor, loggingGCMonitor)));
+                List.of(gcMonitor, loggingGCMonitor)));
         mkBuilder.setRevisionGCMaxAge(TimeUnit.SECONDS.toMillis(config.versionGcMaxAgeInSecs()));
 
         nodeStore = mkBuilder.build();
@@ -490,6 +500,7 @@ public class DocumentNodeStoreService {
                         config.nodeCachePercentage(),
                         config.prevDocCachePercentage(),
                         config.childrenCachePercentage(),
+<<<<<<< HEAD
                         config.diffCachePercentage())
                 .setCacheSegmentCount(config.cacheSegmentCount())
                 .setCacheStackMoveDistance(config.cacheStackMoveDistance())
@@ -513,6 +524,35 @@ public class DocumentNodeStoreService {
                 .setClusterIdReuseDelayAfterRecovery(config.clusterIdReuseDelayAfterRecoveryMillis())
                 .setRecoveryDelayMillis(config.recoveryDelayMillis())
                 .setLeaseFailureHandler(new LeaseFailureHandler() {
+=======
+                        config.diffCachePercentage(),
+                        config.prevNoPropCachePercentage()).
+                setCacheSegmentCount(config.cacheSegmentCount()).
+                setCacheStackMoveDistance(config.cacheStackMoveDistance()).
+                setBundlingDisabled(config.bundlingDisabled()).
+                setJournalPropertyHandlerFactory(journalPropertyHandlerFactory).
+                setLeaseCheckMode(ClusterNodeInfo.DEFAULT_LEASE_CHECK_DISABLED ? LeaseCheckMode.DISABLED : LeaseCheckMode.valueOf(config.leaseCheckMode())).
+                setPrefetchFeature(prefetchFeature).
+                setDocStoreThrottlingFeature(docStoreThrottlingFeature).
+                setNoChildOrderCleanupFeature(noChildOrderCleanupFeature).
+                setCancelInvalidationFeature(cancelInvalidationFeature).
+                setDocStoreFullGCFeature(docStoreFullGCFeature).
+                setDocStoreEmbeddedVerificationFeature(docStoreEmbeddedVerificationFeature).
+                setPrevNoPropCacheFeature(prevNoPropCacheFeature).
+                setThrottlingEnabled(config.throttlingEnabled()).
+                setFullGCEnabled(config.fullGCEnabled()).
+                setFullGCIncludePaths(config.fullGCIncludePaths()).
+                setFullGCExcludePaths(config.fullGCExcludePaths()).
+                setEmbeddedVerificationEnabled(config.embeddedVerificationEnabled()).
+                setFullGCMode(config.fullGCMode()).
+                setFullGCBatchSize(config.fullGCBatchSize()).
+                setFullGCProgressSize(config.fullGCProgressSize()).
+                setFullGCDelayFactor(config.fullGCDelayFactor()).
+                setSuspendTimeoutMillis(config.suspendTimeoutMillis()).
+                setClusterIdReuseDelayAfterRecovery(config.clusterIdReuseDelayAfterRecoveryMillis()).
+                setRecoveryDelayMillis(config.recoveryDelayMillis()).
+                setLeaseFailureHandler(new LeaseFailureHandler() {
+>>>>>>> upstream/trunk
 
                     private final LeaseFailureHandler defaultLeaseFailureHandler = createDefaultLeaseFailureHandler();
 
@@ -669,6 +709,10 @@ public class DocumentNodeStoreService {
 
         if (docStoreEmbeddedVerificationFeature != null) {
             docStoreEmbeddedVerificationFeature.close();
+        }
+
+        if (prevNoPropCacheFeature != null) {
+            prevNoPropCacheFeature.close();
         }
 
         unregisterNodeStore();
