@@ -59,6 +59,7 @@ public class ReplicaSetDefaultWriteConcernIT {
     @Test
     public void majorityWriteConcern() {
         String uri = "mongodb://" + MongodProcessFactory.localhost(executables.keySet());
+        uri += "/?replicaSet=rs";
         DocumentNodeStore ns = builderProvider.newBuilder()
                 .setLeaseCheckMode(LeaseCheckMode.DISABLED)
                 .setMongoDB(uri, MongoUtils.DB, 0).build();

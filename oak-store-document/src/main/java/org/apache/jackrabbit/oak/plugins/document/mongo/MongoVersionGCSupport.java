@@ -75,6 +75,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -275,7 +276,7 @@ public class MongoVersionGCSupport extends VersionGCSupport {
 
         logQueryExplain("fullGC query explain details, hint : {} - explain : {}", query, modifiedIdHint);
         if (LOG.isDebugEnabled()) {
-            BsonDocument bson = query.toBsonDocument(BsonDocument.class, MongoClient.getDefaultCodecRegistry());
+            BsonDocument bson = query.toBsonDocument(BsonDocument.class, MongoClientSettings.getDefaultCodecRegistry());
             LOG.debug("getModifiedDocs : query is {}", bson);
         }
 

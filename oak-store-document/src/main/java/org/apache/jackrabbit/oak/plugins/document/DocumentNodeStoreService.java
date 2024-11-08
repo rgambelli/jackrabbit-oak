@@ -500,31 +500,6 @@ public class DocumentNodeStoreService {
                         config.nodeCachePercentage(),
                         config.prevDocCachePercentage(),
                         config.childrenCachePercentage(),
-<<<<<<< HEAD
-                        config.diffCachePercentage())
-                .setCacheSegmentCount(config.cacheSegmentCount())
-                .setCacheStackMoveDistance(config.cacheStackMoveDistance())
-                .setBundlingDisabled(config.bundlingDisabled())
-                .setJournalPropertyHandlerFactory(journalPropertyHandlerFactory)
-                .setLeaseCheckMode(
-                        ClusterNodeInfo.DEFAULT_LEASE_CHECK_DISABLED ? LeaseCheckMode.DISABLED : LeaseCheckMode.valueOf(config.leaseCheckMode()))
-                .setPrefetchFeature(prefetchFeature)
-                .setDocStoreThrottlingFeature(docStoreThrottlingFeature)
-                .setNoChildOrderCleanupFeature(noChildOrderCleanupFeature)
-                .setCancelInvalidationFeature(cancelInvalidationFeature)
-                .setDocStoreFullGCFeature(docStoreFullGCFeature)
-                .setDocStoreEmbeddedVerificationFeature(docStoreEmbeddedVerificationFeature)
-                .setThrottlingEnabled(config.throttlingEnabled())
-                .setFullGCEnabled(config.fullGCEnabled())
-                .setFullGCIncludePaths(config.fullGCIncludePaths())
-                .setFullGCExcludePaths(config.fullGCExcludePaths())
-                .setEmbeddedVerificationEnabled(config.embeddedVerificationEnabled())
-                .setFullGCMode(config.fullGCMode())
-                .setSuspendTimeoutMillis(config.suspendTimeoutMillis())
-                .setClusterIdReuseDelayAfterRecovery(config.clusterIdReuseDelayAfterRecoveryMillis())
-                .setRecoveryDelayMillis(config.recoveryDelayMillis())
-                .setLeaseFailureHandler(new LeaseFailureHandler() {
-=======
                         config.diffCachePercentage(),
                         config.prevNoPropCachePercentage()).
                 setCacheSegmentCount(config.cacheSegmentCount()).
@@ -552,7 +527,6 @@ public class DocumentNodeStoreService {
                 setClusterIdReuseDelayAfterRecovery(config.clusterIdReuseDelayAfterRecoveryMillis()).
                 setRecoveryDelayMillis(config.recoveryDelayMillis()).
                 setLeaseFailureHandler(new LeaseFailureHandler() {
->>>>>>> upstream/trunk
 
                     private final LeaseFailureHandler defaultLeaseFailureHandler = createDefaultLeaseFailureHandler();
 
